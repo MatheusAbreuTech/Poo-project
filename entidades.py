@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey,Date,Float,update,delete
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey,Date,Float,update,delete,select
 from sqlalchemy.orm import relationship, sessionmaker, declarative_base
 
 engine= create_engine('sqlite:///biblioteca.db')
@@ -46,6 +46,7 @@ class Veiculo(Base):
     preco=Column(Float, nullable=False)
     cor=Column(String, nullable=False)
     numero_de_rodas=Column(Integer, nullable=False)
+    Is_available=Column(Integer,nullabe=False)
 
     placa=Column(String, nullable=False)
 
@@ -89,6 +90,18 @@ class Veiculo_service():
         print(query)
         session.execute(query)
         session.commit()    
+
+    def get_veiculo_by_id(id_veiculo,status):
+        query=(
+            select(Veiculo)
+            .where(Veiculo.id_veiculo==id_veiculo)
+            )
+        session.execute(query)
+        session.commit()
+        
+          
+        
+
         
 class Cliente_service():
     def cadastro_cliente(nome , cpf , telefone , email):
