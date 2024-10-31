@@ -26,10 +26,7 @@ class Venda(Base):
     Veiculo = relationship('Veiculo', backref='Vendas')
     id_cliente = Column(Integer, ForeignKey('Clientes.id_cliente'))
     Cliente = relationship('Cliente', backref='Vendas')
-    nome = Column(String, nullable=False)
-    carro = Column(String,nullable=False)
-    cliente = Column(String,nullable=False)
-    data_venda=Column(Date,nullable=False)
+    data_venda=Column(String,nullable=False)
     valor_total=Column(Float,nullable=False)
     def __repr__(self):
         return f'<Id Venda: (nome={self.id_venda}, Valor={self.valor_total})>'
@@ -46,7 +43,7 @@ class Veiculo(Base):
     preco=Column(Float, nullable=False)
     cor=Column(String, nullable=False)
     numero_de_rodas=Column(Integer, nullable=False)
-    Is_available=Column(Integer,nullabe=False)
+    Is_available=Column(Integer,nullable=False)
 
     placa=Column(String, nullable=False)
 
@@ -57,8 +54,8 @@ Base.metadata.create_all(engine)
 
 
 class Veiculo_service():
-    def cadastro_veiculo(marca,modelo,ano,preco,cor,numero_de_rodas,placa):
-       veiculo = Veiculo(marca=marca,modelo=modelo,ano=ano,preco=preco,cor=cor,numero_de_rodas=numero_de_rodas,placa=placa)
+    def cadastro_veiculo(marca,modelo,ano,preco,cor,numero_de_rodas,placa , Is_available):
+       veiculo = Veiculo(marca=marca,modelo=modelo,ano=ano,preco=preco,cor=cor,numero_de_rodas=numero_de_rodas,placa=placa , Is_available=Is_available)
        session.add(veiculo)
        session.commit()
        
@@ -110,10 +107,12 @@ class Cliente_service():
         session.commit()          
  
     def listar_cliente():
-        
         clientes = session.query(Cliente).all()
         for cliente in clientes:
             print(cliente.nome)
+            print(cliente.cpf)
+            print(cliente.telefone)
+            print(cliente.email)
 
     def update_cliente(id_cliente,nome,cpf,telefone,email):
         query=(
@@ -129,4 +128,41 @@ class Cliente_service():
         print(query)
         session.execute(query)
         session.commit()
+
+class Venda_service():
+    def cadastro_venda (id_veiculos , id_cliente , data_venda , valor_total):
+        
+
+        query_cliente = session.query(Cliente).where(Cliente.id_cliente == id_cliente).first()
+        query_veiculo = session.query(Veiculo).where(Veiculo.id_veiculo == id_veiculos).first()
+        print(query_cliente , query_veiculo)
+
+        if not query_cliente:
+            print(f'O Cliente {id_cliente} não existe')
+        elif not query_veiculo:
+            print(f'O Veiculo {id_veiculos} não está disponível')
+        else:
+            cadastro = Venda(Cliente=query_cliente , Veiculo=query_veiculo , data_venda=data_venda , valor_total=valor_total)
+            session.add(cadastro)
+            session.commit()
+
+
+
+# class Venda(Base):
+#     __tablename__ = "Vendas"
+#     id_venda = Column(Integer, primary_key=True)
+#     id_veiculo = Column(Integer, ForeignKey('Veiculos.id_veiculo'))
+#     Veiculo = relationship('Veiculo', backref='Vendas')
+#     id_cliente = Column(Integer, ForeignKey('Clientes.id_cliente'))
+#     Cliente = relationship('Cliente', backref='Vendas')
+#     data_venda=Column(Date,nullable=False)
+#     valor_total=Column(Float,nullable=False)
+#     def __repr__(self):
+#         return f'<Id Venda: (nome={self.id_venda}, Valor={self.valor_total})>'
+    
+
+
+
+
+#   veiculos = session.query(Veiculo).all()
 
