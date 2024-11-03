@@ -146,19 +146,47 @@ class Venda_service():
             session.add(cadastro)
             session.commit()
 
+    def delete_venda(id_venda):
+        query=delete(Venda).where(id_venda==id_venda)
+        print(query)
+        session.execute(query)
+        session.commit()
 
 
-# class Venda(Base):
-#     __tablename__ = "Vendas"
-#     id_venda = Column(Integer, primary_key=True)
-#     id_veiculo = Column(Integer, ForeignKey('Veiculos.id_veiculo'))
-#     Veiculo = relationship('Veiculo', backref='Vendas')
-#     id_cliente = Column(Integer, ForeignKey('Clientes.id_cliente'))
-#     Cliente = relationship('Cliente', backref='Vendas')
-#     data_venda=Column(Date,nullable=False)
-#     valor_total=Column(Float,nullable=False)
-#     def __repr__(self):
-#         return f'<Id Venda: (nome={self.id_venda}, Valor={self.valor_total})>'
+    def update_venda(id_venda,id_veiculo,veiculo,id_cliente,Cliente,data_venda,valor_total):
+        query=(
+            update(Venda)
+            .where(Venda.id_venda==id_venda)
+            .values(id_veiculo=id_veiculo,veiculo=veiculo,id_cliente=id_cliente,Cliente=Cliente,data_venda=data_venda,valor_total=valor_total)
+            )
+        session.execute(query)
+        session.commit()
+
+    # perguntar pro matheus<-- não esta trazendo os valores   
+    def lista_vendas():
+        vendas=session.query(Venda).all()
+        for venda in vendas:
+            print(f'id da venda: {Venda.id_venda}')
+            print(f'Veiculo: {Venda.Veiculo}')
+            print(f'Cliente: {Venda.Cliente}')
+            print(f'Data-Hora: {Venda.data_venda}')
+            print(f'Valor-total: {Venda.valor_total}')
+                
+
+
+
+
+
+
+
+
+# #    def listar_cliente():
+#         clientes = session.query(Cliente).all()
+#         for cliente in clientes:
+#             print(cliente.nome)
+#             print(cliente.cpf)
+#             print(cliente.telefone)
+#             print(cliente.email)
     
 
 
