@@ -17,7 +17,9 @@ def mostrar_menu():
     print("5 - Deletar Venda")
     print("6 - Cadastrar Veículo")
     print("7 - Realizar uma venda")
-    print("8 - Nenhuma das anteriores")
+    print("8 - Listar Clientes")
+    print("9 - Atualizar dados de Cliente")
+    print("10 - Nenhuma das anteriores")
     print("==========================")
 
 def dizer_ola():
@@ -35,25 +37,12 @@ def main():
         if opcao == '1':
             print('Perfeito! Nos forneça alguns dados:') 
             nome = input('Nome: ')
-            cpf = input('CPF: ')  # CPF como string para manter zeros à esquerda
-            telefone = input('Telefone: ')
+            cpf = int(input('CPF: '))  # CPF como string para manter zeros à esquerda
+            telefone = int(input('Telefone: '))
             email = input('E-mail: ')
 
-            try:
-                # Tenta cadastrar o cliente
-                cliente_service.cadastro_cliente(nome, cpf, telefone, email)
-                # Verifica se o cliente foi cadastrado com sucesso no banco de dados
-                # cliente_cadastrado = session.query(Cliente).filter_by(cpf=cpf).first()
-                # if cliente_cadastrado:
-                #     print("Cliente cadastrado com sucesso!")
-                # else:
-                #     print("Erro: Não foi possível cadastrar o cliente.")
-
-            except SQLAlchemyError as e:
-                print("Erro ao cadastrar o cliente no banco de dados:", e)
-
-            except Exception as e:
-                print("Ocorreu um erro inesperado:", e)
+            cliente_service.cadastro_cliente(nome, cpf, telefone, email)
+      
 
         elif opcao == '2':
             print('Esses são os veículos que possuímos:')
@@ -62,12 +51,12 @@ def main():
         elif opcao == '3':
             cliente_a_deletar = int(input('Qual cliente deseja deletar?: '))
 
-            try:
-                cliente_service.delete_cliente(cliente_a_deletar)
-            except SQLAlchemyError as e:
-                print('Error ao deletar o cliente do banco de dados:' , e)
-            except Exception as e:
-                print('Ocorreu um erro inesperado!' , e)
+            cliente_service.delete_cliente(cliente_a_deletar)
+            # try:
+            # except SQLAlchemyError as e:
+            #     print('Error ao deletar o cliente do banco de dados:' , e)
+            # except Exception as e:
+            #     print('Ocorreu um erro inesperado!' , e)
 
         elif opcao == '4':
             veiculo_a_deletar = int(input('Qual veículo deseja deletar: '))
@@ -102,7 +91,25 @@ def main():
         elif opcao == '7':
             # implementar
             pass
-        elif opcao == '8':
+        
+        elif opcao=='8':
+            print('Esses são os clientes que possuimos:')
+            cliente_service.listar_cliente()
+
+        elif opcao=='9':
+            print('Perfeito! Nos forneça alguns dados')
+            id=int(input('ID do cliente: '))
+            nome=input("Nome:")
+            cpf=int(input('CPF: '))
+            telefone=int(input("Telefone: "))
+            email=input("Email: ")
+            cliente_service.update_cliente(id,nome,cpf,telefone,email)
+
+
+
+
+
+        elif opcao == '10':
             print("Saindo... Obrigado por usar o programa!")                           
             break
         else:

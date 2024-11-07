@@ -23,7 +23,7 @@ class Venda_service():
             self.session.commit()
 
     def delete_venda(self, id_venda):
-        query=delete(Venda).where(id_venda==id_venda)
+        query=delete(Venda).where(Venda.id_venda==id_venda)
         session.execute(query)
         session.commit()
 

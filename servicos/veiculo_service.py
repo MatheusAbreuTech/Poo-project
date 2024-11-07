@@ -10,6 +10,14 @@ class Veiculo_service():
        veiculo = Veiculo(marca=marca,modelo=modelo,ano=ano,preco=preco,cor=cor,numero_de_rodas=numero_de_rodas,placa=placa , disponivel=disponivel)
        self.session.add(veiculo)
        self.session.commit()
+
+       try:
+        print("Veiculo cadastrado com sucesso!")
+       except SQLAlchemyError as e:
+        print('Erro ao cadastrar o veiculo no banco de dados')
+       except Exception as e:
+        print("Ocorreu um erro inesperado")  
+
        
     def lista_veiculos(self):
         veiculos = self.session.query(Veiculo).all()
@@ -32,7 +40,7 @@ class Veiculo_service():
         self.session.commit()
 
     def deleta_veiculo(self, id_veiculo):
-        query=delete(Veiculo).where(id_veiculo==id_veiculo)
+        query=delete(Veiculo).where(Veiculo.id_veiculo==id_veiculo)
         self.session.execute(query)
         self.session.commit()    
 
