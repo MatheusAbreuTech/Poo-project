@@ -1,6 +1,8 @@
 from entidades.veiculo_entidade import Veiculo
 from database.db import Session
 from sqlalchemy import update, delete, select
+from plyer import notification
+import time
 
 class Veiculo_service():
     def __init__(self):
@@ -11,7 +13,11 @@ class Veiculo_service():
             veiculo = Veiculo(marca=marca,modelo=modelo,ano=ano,preco=preco,cor=cor,numero_de_rodas=numero_de_rodas,placa=placa , disponivel=disponivel)
             self.session.add(veiculo)
             self.session.commit()
-            print("Veiculo cadastrado com sucesso!")
+            notification.notify(
+                title = "PERFEITO!!!",
+                message = "Veículo cadastrado com sucesso",
+                timeout = 1000
+            )
        except SQLAlchemyError as e:
         print('Erro ao cadastrar o veiculo no banco de dados')
        except Exception as e:
@@ -36,8 +42,14 @@ class Veiculo_service():
                 )
             self.session.execute(query)
             self.session.commit()
+
+            notification.notify(
+                title = "PERFETO!!!",
+                message = "Veículo atualizado com sucesso!"
+                timeout = 1000
+            )
         except exc.SQLAlchemyError as e:
-            print(f"Erro ao atualizar o veiculo no banco de dados {e}")
+            print(f"Erro ao atualizar o veículo no banco de dados {e}")
         except Exception as e:
             print(f"Occoreu um erro inesperado: {e}")
 
@@ -51,7 +63,7 @@ class Veiculo_service():
             self.session.execute(query)
             self.session.commit()
         except exc.SQLAlchemyError as e:
-            print(f"Erro ao atualizar o veiculo no banco de dados {e}")
+            print(f"Erro ao atualizar o veículo no banco de dados {e}")
         except Exception as e:
             print(f"Occoreu um erro inesperado: {e}")
 
@@ -60,6 +72,12 @@ class Veiculo_service():
             query=delete(Veiculo).where(Veiculo.id_veiculo==id_veiculo)
             self.session.execute(query)
             self.session.commit()
+
+            notification.notify(
+                title = "DELETADO COM SUCESSO!!!",
+                message = "Veículo deletado com sucesso!",
+                timeout = 100
+            )
         except exc.SQLAlchemyError as e:
             print(f"Error ao deletar o veiculo do banco de dados {e}")
         except Exception as e:

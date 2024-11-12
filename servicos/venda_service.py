@@ -4,10 +4,10 @@ from entidades.cliente_entidade import Cliente
 
 from database.db import Session
 from sqlalchemy import update, delete, select, exc
-
 from plyer import notification
 from servicos.veiculo_service import Veiculo_service
 from datetime import datetime
+import time
 
 class Venda_service():
     def __init__(self):
@@ -20,11 +20,23 @@ class Venda_service():
             query_veiculo = self.session.query(Veiculo).where(Veiculo.id_veiculo == id_veiculo).first()
 
             if not query_cliente:
-                print(f'O Cliente {id_cliente} não existe')
+                notification.notify(
+                    title = "CLIENTE NÃO EXISTE!!!",
+                    message = f"O cliente {id_cliente} não existe!",
+                    timeout = 1000
+                )
             elif not query_veiculo:
-                print(f'O Veiculo {id_veiculos} não existe.')
+                notification.notify(
+                    title = "VEÍCULO NÃO EXISTE!!!",
+                    message = f"O veículo {id_veiculo} não existe!",
+                    timeout = 1000
+                )
             elif query_veiculo.disponivel == 0:
-                print(f'Veiculo indisponivel')
+                notification.notify(
+                    title = "VEÍCULO INDISPONÍVEL!!!",
+                    message = "Veículo não está disponível no momento!",
+                    timeout = 1000
+                )
             else:
                 data_venda = datetime.now()
                 cadastro = Venda(Cliente=query_cliente , Veiculo=query_veiculo , data_venda=data_venda , valor_total=query_veiculo.preco)
