@@ -3,45 +3,64 @@ from entidades.veiculo_entidade import Veiculo
 from entidades.cliente_entidade import Cliente
 
 from database.db import Session
-from sqlalchemy import update, delete, select
+from sqlalchemy import update, delete, select, exc
+
+from plyer import notification
+from servicos.veiculo_service import Veiculo_service
+from datetime import datetime
 
 class Venda_service():
     def __init__(self):
         self.session = Session()
-        
-    def cadastro_venda (self, id_veiculos , id_cliente , data_venda , valor_total):
-        query_cliente = self.session.query(Cliente).where(Cliente.id_cliente == id_cliente).first()
-        query_veiculo = self.session.query(Veiculo).where(Veiculo.id_veiculo == id_veiculos).first()
+        self.veiculo_service = Veiculo_service()
 
-        if not query_cliente:
-            print(f'O Cliente {id_cliente} não existe')
-        elif not query_veiculo:
-            print(f'O Veiculo {id_veiculos} não está disponível')
-        else:
-            cadastro = Venda(Cliente=query_cliente , Veiculo=query_veiculo , data_venda=data_venda , valor_total=valor_total)
-            self.session.add(cadastro)
-            self.session.commit()
+    def cadastro_venda (self, id_veiculo , id_cliente):
+        try:
+            query_cliente = self.session.query(Cliente).where(Cliente.id_cliente == id_cliente).first()
+            query_veiculo = self.session.query(Veiculo).where(Veiculo.id_veiculo == id_veiculo).first()
 
-    def delete_venda(self, id_venda):
-        query=delete(Venda).where(Venda.id_venda==id_venda)
-        session.execute(query)
-        session.commit()
+            if not query_cliente:
+                print(f'O Cliente {id_cliente} não existe')
+            elif not query_veiculo:
+                print(f'O Veiculo {id_veiculos} não existe.')
+            elif query_veiculo.disponivel == 0:
+                print(f'Veiculo indisponivel')
+            else:
+                data_venda = datetime.now()
+                cadastro = Venda(Cliente=query_cliente , Veiculo=query_veiculo , data_venda=data_venda , valor_total=query_veiculo.preco)
+                self.session.add(cadastro)
 
-    def update_venda(self, id_venda,id_veiculo,veiculo,id_cliente,Cliente,data_venda,valor_total):
-        query=(
-            update(Venda)
-            .where(Venda.id_venda==id_venda)
-            .values(id_veiculo=id_veiculo,veiculo=veiculo,id_cliente=id_cliente,Cliente=Cliente,data_venda=data_venda,valor_total=valor_total)
-            )
-        self.session.execute(query)
-        self.session.commit()
+                self.veiculo_service.mudar_disponibilidade_veiculo(id_veiculo, 0)
+                self.session.commit()
 
-    # perguntar pro matheus<-- não esta trazendo os valores
-    def lista_vendas(self):
-        vendas= self.session.query(Venda).all()
-        for venda in vendas:
-            print(f'id da venda: {Venda.id_venda}')
-            print(f'Veiculo: {Venda.Veiculo}')
-            print(f'Cliente: {Venda.Cliente}')
-            print(f'Data-Hora: {Venda.data_venda}')
-            print(f'Valor-total: {Venda.valor_total}')
+                notification.notify(
+                title = "PERFEITO!!!",
+                message = "Venda realizada com sucesso!",
+                timeout = 1000
+                )
+
+        except exc.SQLAlchemyError as e:
+            self.session.rollback()
+            print(f"Erro ao efetuar a venda {e}")
+        except Exception as e:
+            self.session.rollback()
+            print(f"Ocorreu um erro inesperado: {e}")
+
+    def listar_vendas(self):
+        try:
+            vendas = self.session.query(Venda).all()
+            for venda in vendas:
+                print(f"id da venda: {Venda.id_venda} | Veiculo: {Venda.Veiculo} | Cliente: {Venda.Cliente} | Data da venda: {Venda.data_venda} | Valor total: {Venda.valor_total}")
+        except exc.SQLAlchemyError as e:
+            print(f"Erro ao listar as vendas {e}")
+        except Exception as e:
+            print(f"Ocorreu um erro inesperado: {e}")
+
+    def listar_venda(self, id_venda):
+        try:
+            venda = self.session.query(Venda).where(Venda.id_venda == id_venda).first()
+            print(f"id da venda: {Venda.id_venda} | Veiculo: {Venda.Veiculo} | Cliente: {Venda.Cliente} | Data da venda: {Venda.data_venda} | Valor total: {Venda.valor_total}")
+        except exc.SQLAlchemyError as e:
+            print(f"Erro ao listar a venda {e}")
+        except Exception as e:
+            print(f"Ocorreu um erro inesperado: {e}")

@@ -5,49 +5,75 @@ from sqlalchemy import update, delete, select
 class Veiculo_service():
     def __init__(self):
         self.session = Session()
-        
-    def cadastro_veiculo(self, marca,modelo,ano,preco,cor,numero_de_rodas,placa , disponivel):
-       veiculo = Veiculo(marca=marca,modelo=modelo,ano=ano,preco=preco,cor=cor,numero_de_rodas=numero_de_rodas,placa=placa , disponivel=disponivel)
-       self.session.add(veiculo)
-       self.session.commit()
 
+    def cadastro_veiculo(self, marca,modelo,ano,preco,cor,numero_de_rodas,placa , disponivel):
        try:
-        print("Veiculo cadastrado com sucesso!")
+            veiculo = Veiculo(marca=marca,modelo=modelo,ano=ano,preco=preco,cor=cor,numero_de_rodas=numero_de_rodas,placa=placa , disponivel=disponivel)
+            self.session.add(veiculo)
+            self.session.commit()
+            print("Veiculo cadastrado com sucesso!")
        except SQLAlchemyError as e:
         print('Erro ao cadastrar o veiculo no banco de dados')
        except Exception as e:
-        print("Ocorreu um erro inesperado")  
+        print("Ocorreu um erro inesperado")
 
-       
-    def lista_veiculos(self):
-        veiculos = self.session.query(Veiculo).all()
-        for veiculo in veiculos:
-            print(veiculo.marca)
-            print(veiculo.modelo)
-            print(veiculo.ano)
-            print(veiculo.preco)
-            print(veiculo.cor)
-            print(veiculo.numero_de_rodas)
-            print(veiculo.placa)
+    def lista_veiculos_disponiveis(self):
+        try:
+            veiculos = self.session.query(Veiculo).where(Veiculo.disponivel == 1).all()
+            for veiculo in veiculos:
+                print(f"Marca: {veiculo.marca} | Modelo: {veiculo.modelo} | Ano: {veiculo.ano} | Preço: {veiculo.preco} | Cor: {veiculo.cor} | Numero de rodas: {veiculo.numero_de_rodas} | Placa: {veiculo.placa}")
+        except exc.SQLAlchemyError as e:
+            print(f"Erro ao listar os veiculos {e}")
+        except Exception as e:
+            print(f"Ocorreu um erro inesperado: {e}")
 
     def atualiza_veiculo(self, id_veiculo,marca, modelo,ano,preco,cor,numero_de_rodas,placa):
-        query=(
-            update(Veiculo)
-            .where(Veiculo.id_veiculo==id_veiculo)
-            .values(marca=marca,modelo=modelo,ano=ano,preco=preco,cor=cor,numero_de_rodas=numero_de_rodas,placa=placa)
-            )
-        self.session.execute(query) 
-        self.session.commit()
+        try:
+            query=(
+                update(Veiculo)
+                .where(Veiculo.id_veiculo==id_veiculo)
+                .values(marca=marca,modelo=modelo,ano=ano,preco=preco,cor=cor,numero_de_rodas=numero_de_rodas,placa=placa)
+                )
+            self.session.execute(query)
+            self.session.commit()
+        except exc.SQLAlchemyError as e:
+            print(f"Erro ao atualizar o veiculo no banco de dados {e}")
+        except Exception as e:
+            print(f"Occoreu um erro inesperado: {e}")
+
+    def mudar_disponibilidade_veiculo(self, id_veiculo, disponivel):
+        try:
+            query=(
+                update(Veiculo)
+                .where(Veiculo.id_veiculo==id_veiculo)
+                .values(disponivel=disponivel)
+                )
+            self.session.execute(query)
+            self.session.commit()
+        except exc.SQLAlchemyError as e:
+            print(f"Erro ao atualizar o veiculo no banco de dados {e}")
+        except Exception as e:
+            print(f"Occoreu um erro inesperado: {e}")
 
     def deleta_veiculo(self, id_veiculo):
-        query=delete(Veiculo).where(Veiculo.id_veiculo==id_veiculo)
-        self.session.execute(query)
-        self.session.commit()    
+        try:
+            query=delete(Veiculo).where(Veiculo.id_veiculo==id_veiculo)
+            self.session.execute(query)
+            self.session.commit()
+        except exc.SQLAlchemyError as e:
+            print(f"Error ao deletar o veiculo do banco de dados {e}")
+        except Exception as e:
+            print(f"Occoreu um erro inesperado: {e}")
 
     def selecionar_veiculo_por_id(self, id_veiculo):
-        query=(
-            select(Veiculo)
-            .where(Veiculo.id_veiculo==id_veiculo)
-            )
-        self.session.execute(query)
-        self.session.commit()
+        try:
+            query=(
+                select(Veiculo)
+                .where(Veiculo.id_veiculo==id_veiculo)
+                )
+            self.session.execute(query)
+            self.session.commit()
+        except exc.SQLAlchemyError as e:
+            print(f"Erro ao selecionar o veiculo no banco de dados {e}")
+        except Exception as e:
+            print(f"Occoreu um erro inesperado: {e}")
