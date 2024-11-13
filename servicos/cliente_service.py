@@ -24,13 +24,13 @@ class Cliente_service():
         except Exception as e:
             print("Ocorreu um erro inesperado!: " + str(e))
 
-    def listar_cliente(self):
+    def listar_clientes(self):
         try:
             clientes = self.session.query(Cliente).all()
             if len(clientes)<1:
                 notification.notifly(
                     title = "ERROR",
-                    menssage = "Não possuimos cliente cadastrado no momento! \n Tente novamente mais tarde!:",
+                    message = "Não possuimos cliente cadastrado no momento! \n Tente novamente mais tarde!:",
                     timeout = 1000
                 )
             else:
@@ -41,14 +41,31 @@ class Cliente_service():
             print(f"Erro ao listar os clientes do banco de dados {e}")
         except Exception as e:
             print(f"Ocorreu um erro inesperado: {e}")
+    
+    def selecionar_cliente_pelo_id(self, id_cliente):
+        try:
+            cliente = self.session.query(Cliente).where(Cliente.id_cliente == id_cliente).first()
+            if not cliente:
+                notification.notify(
+                    title = "ERROR",
+                    message = "Cliente nao encontrado!",
+                    timeout = 1000
+                )
+            else:
+                print(f'ID_Cliente:{cliente.id_cliente} | nome: {cliente.nome} | cpf: {cliente.cpf} | telefone: {cliente.telefone} | email: {cliente.email}')
+                return cliente
+        except exc.SQLAlchemyError as e:
+            print(f"Erro ao listar o cliente no banco de dados {e}")
+        except Exception as e:
+            print(f"Ocorreu um erro inesperado: {e}")
 
-    def update_cliente(self, id_cliente,nome,cpf,telefone,email):
+    def atualizar_cliente(self, id_cliente,nome,cpf,telefone,email):
         try:
             query_cliente = self.session.query(Cliente).where(Cliente.id_cliente == id_cliente).first()
             if not query_cliente:
                 notification.notify(
                     title = "ERROR",
-                    menssage = "Cliente não existente",
+                    message = "Cliente não existente",
                     timeout = 1000
                 )
             else:
@@ -56,9 +73,14 @@ class Cliente_service():
                     update(Cliente)
                     .where(Cliente.id_cliente==id_cliente)
                     .values(nome=nome,cpf=cpf,telefone=telefone,email=email)
-                    )      
+                    )
                 self.session.execute(query)
                 self.session.commit()
+                notification.notify(
+                    title = "PERFEITO!!!",
+                    message = "Cliente atualizado com sucesso!",
+                    timeout = 1000
+                )
         except exc.SQLAlchemyError as e:
             print(f"Erro ao arualizar o cliente no banco de dados {e}")
         except Exception as e:
@@ -66,13 +88,20 @@ class Cliente_service():
 
     def delete_cliente(self, id_cliente):
         try:
-            query = delete(Cliente).where(Cliente.id_cliente==id_cliente)
-            if not query_cliente:
+            cliente = self.session.query(Cliente).where(Cliente.id_cliente == id_cliente).first()
+            if cliente:
+                query = (delete(Cliente).where(Cliente.id_cliente==id_cliente))
                 self.session.execute(query)
                 self.session.commit()
                 notification.notify(
                     title = "PERFEITO!!!",
-                    menssage = "Cliente deletado cm sucesso!",
+                    message = "Cliente deletado com sucesso!",
+                    timeout = 1000
+                )
+            else:
+                notification.notify(
+                    title = "ERROR",
+                    message = "Cliente nao encontrado!",
                     timeout = 1000
                 )
         except exc.SQLAlchemyError as e:

@@ -14,7 +14,7 @@ class Venda_service():
         self.session = Session()
         self.veiculo_service = Veiculo_service()
 
-    def cadastro_venda (self, id_veiculo , id_cliente):
+    def cadastro_venda (self, id_cliente, id_veiculo):
         try:
             query_cliente = self.session.query(Cliente).where(Cliente.id_cliente == id_cliente).first()
             query_veiculo = self.session.query(Veiculo).where(Veiculo.id_veiculo == id_veiculo).first()
@@ -61,8 +61,15 @@ class Venda_service():
     def listar_vendas(self):
         try:
             vendas = self.session.query(Venda).all()
-            for venda in vendas:
-                print(f"id da venda: {Venda.id_venda} | Veiculo: {Venda.Veiculo} | Cliente: {Venda.Cliente} | Data da venda: {Venda.data_venda} | Valor total: {Venda.valor_total}")
+            if len(vendas) == 0:
+                notification.notify(
+                    title = "ERROR",
+                    message = "Nenhuma venda realizada no momento! \n Tente novamente mais tarde!",
+                    timeout = 1000
+                )
+            else:
+                for venda in vendas:
+                    print(f"id da venda: {Venda.id_venda} | Veiculo: {Venda.Veiculo} | Cliente: {Venda.Cliente} | Data da venda: {Venda.data_venda} | Valor total: {Venda.valor_total}")
         except exc.SQLAlchemyError as e:
             print(f"Erro ao listar as vendas {e}")
         except Exception as e:
@@ -71,7 +78,14 @@ class Venda_service():
     def listar_venda(self, id_venda):
         try:
             venda = self.session.query(Venda).where(Venda.id_venda == id_venda).first()
-            print(f"id da venda: {Venda.id_venda} | Veiculo: {Venda.Veiculo} | Cliente: {Venda.Cliente} | Data da venda: {Venda.data_venda} | Valor total: {Venda.valor_total}")
+            if(not venda):
+                notification.notify(
+                    title = "ERROR",
+                    message = "Nenhuma venda encontrada!",
+                    timeout = 1000
+                )
+            else:
+                print(f"id da venda: {Venda.id_venda} | Veiculo: {Venda.Veiculo} | Cliente: {Venda.Cliente} | Data da venda: {Venda.data_venda} | Valor total: {Venda.valor_total}")
         except exc.SQLAlchemyError as e:
             print(f"Erro ao listar a venda {e}")
         except Exception as e:

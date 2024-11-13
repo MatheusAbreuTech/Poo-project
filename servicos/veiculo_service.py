@@ -8,9 +8,9 @@ class Veiculo_service():
     def __init__(self):
         self.session = Session()
 
-    def cadastro_veiculo(self, marca,modelo,ano,preco,cor,numero_de_rodas,placa , disponivel):
+    def cadastro_veiculo(self, marca, modelo, ano, preco, cor, numero_de_rodas, placa):
        try:
-            veiculo = Veiculo(marca=marca,modelo=modelo,ano=ano,preco=preco,cor=cor,numero_de_rodas=numero_de_rodas,placa=placa , disponivel=disponivel)
+            veiculo = Veiculo(marca=marca, modelo=modelo, ano=ano, preco=preco, cor=cor, numero_de_rodas=numero_de_rodas, placa=placa, disponivel=1)
             self.session.add(veiculo)
             self.session.commit()
             notification.notify(
@@ -26,8 +26,15 @@ class Veiculo_service():
     def lista_veiculos_disponiveis(self):
         try:
             veiculos = self.session.query(Veiculo).where(Veiculo.disponivel == 1).all()
-            for veiculo in veiculos:
-                print(f"Marca: {veiculo.marca} | Modelo: {veiculo.modelo} | Ano: {veiculo.ano} | Preço: {veiculo.preco} | Cor: {veiculo.cor} | Numero de rodas: {veiculo.numero_de_rodas} | Placa: {veiculo.placa}")
+            if len(veiculos) == 0:
+                notification.notify(
+                    title = "ERROR",
+                    message = "Nenhum veiculo disponível no momento! \nTente novamente mais tarde!",
+                    timeout = 1000
+                )
+            else:
+                for veiculo in veiculos:
+                    print(f"Marca: {veiculo.marca} | Modelo: {veiculo.modelo} | Ano: {veiculo.ano} | Preço: {veiculo.preco} | Cor: {veiculo.cor} | Numero de rodas: {veiculo.numero_de_rodas} | Placa: {veiculo.placa}")
         except exc.SQLAlchemyError as e:
             print(f"Erro ao listar os veiculos {e}")
         except Exception as e:
@@ -45,7 +52,7 @@ class Veiculo_service():
 
             notification.notify(
                 title = "PERFETO!!!",
-                message = "Veículo atualizado com sucesso!"
+                message = "Veículo atualizado com sucesso!",
                 timeout = 1000
             )
         except exc.SQLAlchemyError as e:
@@ -69,15 +76,23 @@ class Veiculo_service():
 
     def deleta_veiculo(self, id_veiculo):
         try:
-            query=delete(Veiculo).where(Veiculo.id_veiculo==id_veiculo)
-            self.session.execute(query)
-            self.session.commit()
+            veiculo = self.session.query(Veiculo).where(Veiculo.id_veiculo == id_veiculo).first()
+            if veiculo:
+                query=delete(Veiculo).where(Veiculo.id_veiculo==id_veiculo)
+                self.session.execute(query)
+                self.session.commit()
 
-            notification.notify(
-                title = "DELETADO COM SUCESSO!!!",
-                message = "Veículo deletado com sucesso!",
-                timeout = 100
-            )
+                notification.notify(
+                    title = "DELETADO COM SUCESSO!!!",
+                    message = "Veículo deletado com sucesso!",
+                    timeout = 100
+                )
+            else:
+                notification.notify(
+                    title = "ERROR",
+                    message = "Veiculo nao encontrado!",
+                    timeout = 1000
+                )
         except exc.SQLAlchemyError as e:
             print(f"Error ao deletar o veiculo do banco de dados {e}")
         except Exception as e:
@@ -85,12 +100,17 @@ class Veiculo_service():
 
     def selecionar_veiculo_por_id(self, id_veiculo):
         try:
-            query=(
-                select(Veiculo)
-                .where(Veiculo.id_veiculo==id_veiculo)
+            veiculo = self.session.query(Veiculo).where(Veiculo.id_veiculo == id_veiculo).first()
+            if(veiculo):
+                print(f"Marca: {veiculo.marca} | Modelo: {veiculo.modelo} | Ano: {veiculo.ano} | Preço: {veiculo.preco} | Cor: {veiculo.cor} | Numero de rodas: {veiculo.numero_de_rodas} | Placa: {veiculo.placa}")
+                return veiculo
+            
+            else:
+                notification.notify(
+                    title = "ERROR",
+                    message = "Veiculo nao encontrado!",
+                    timeout = 1000
                 )
-            self.session.execute(query)
-            self.session.commit()
         except exc.SQLAlchemyError as e:
             print(f"Erro ao selecionar o veiculo no banco de dados {e}")
         except Exception as e:
