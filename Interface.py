@@ -3,6 +3,7 @@ from servicos.cliente_service import Cliente_service
 from servicos.veiculo_service import Veiculo_service
 from servicos.venda_service import Venda_service
 from database.db import init_db
+from plyer import notification
 
 # Inicia o banco de dados
 init_db()
